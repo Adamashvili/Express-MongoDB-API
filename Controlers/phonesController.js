@@ -2,7 +2,25 @@ const Phone = require("../Models/phoneModel");
 
 exports.getAllPhones = async (req, res) => {
   try {
-    const phones = await Phone.find();
+    // --------  IF QUERY DATA EXISTS  ----------------
+    const { search, brand, minPrice, maxPrice } = req.query;
+    const filter = {};
+    if (search) {
+      filter.title = { $regex: search, $options: "i" };
+    }
+
+    if (brand) {
+      filter.brand = brand;
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+    // -------
+
+    const phones = await Phone.find(filter);
     res.status(200).json({
       status: "success",
       total: phones.length,
