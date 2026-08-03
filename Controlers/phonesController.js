@@ -20,10 +20,26 @@ exports.getAllPhones = async (req, res) => {
     }
     // -------
 
-    const phones = await Phone.find(filter);
+    //-------Pagination-------
+    const totalCount = await Phone.countDocuments(filter);
+    let query = Phone.find(filter);
+
+    let pageIndex = +req.query.page || 1;
+    let limitSize = +req.query.limit || 10;
+    let skip = (pageIndex - 1) * limitSize;
+
+    query = query.skip(skip).limit(limitSize);
+
+    // -----
+
+    const phones = await query;
+
     res.status(200).json({
       status: "success",
-      total: phones.length,
+      page: pageIndex,
+      totalPages: Math.ceil(totalCount / limitSize),
+      limit: limitSize,
+      total: totalCount,
       data: phones,
     });
   } catch (error) {
