@@ -1,20 +1,7 @@
-const swaggerJsdoc = require("swagger-jsdoc");
 
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Phone Store API",
-      version: "1.0.0",
-      description: "Phone products REST API, Made by Irakli Adamashvili",
-    },
-    servers: [
-      {
-        url: "http://localhost:3000/api/v1",
-      },
-    ],
-  },
-  apis: ["./routes/*.js"], // შენი routes ფაილები
-};
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
 
-module.exports = swaggerJsdoc(options);
+const swaggerSpec = YAML.load("./swagger.yaml");
+
+module.exports = { swaggerUi, swaggerSpec };

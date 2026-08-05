@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  title: Phone Store API
+  version: 1.0.0
+  description: Phone products REST API
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/v1/phones:
+    get:
+      summary: Get all phones
+      tags: [Phones]
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by title
+        - in: query
+          name: brand
+          schema:
+            type: string
+          description: Filter by brand
+        - in: query
+          name: minPrice
+          schema:
+            type: number
+          description: Minimum price
+        - in: query
+          name: maxPrice
+          schema:
+            type: number
+          description: Maximum price
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: number
+          description: Items per page
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Failed
+    post:
+      summary: Create new phone
+      tags: [Phones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                brand:
+                  type: string
+                model:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: object
+                  properties:
+                    current:
+                      type: number
+                    oldPrice:
+                      type: number
+                stock:
+                  type: number
+                color:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                colors:
+                  type: array
+                  items:
+                    type: string
+                ram:
+                  type: string
+                processor:
+                  type: string
+                chipset:
+                  type: string
+                screenType:
+                  type: string
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
+
+  /api/v1/phones/infoofprices:
+    get:
+      summary: Get info of prices
+      tags: [Phones]
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Failed
+
+  /api/v1/phones/{id}:
+    get:
+      summary: Get single phone
+      tags: [Phones]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: Not found
+    patch:
+      summary: Update phone
+      tags: [Phones]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                brand:
+                  type: string
+                model:
+                  type: string
+                title:
+                  type: string
+                price:
+                  type: object
+                  properties:
+                    current:
+                      type: number
+                    oldPrice:
+                      type: number
+                stock:
+                  type: number
+                color:
+                  type: string
+      responses:
+        "200":
+          description: Updated
+        "404":
+          description: Not found
+    delete:
+      summary: Delete phone
+      tags: [Phones]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /api/v1/brands:
+    get:
+      summary: Get all brands
+      tags: [Brands]
+      responses:
+        "200":
+          description: Success

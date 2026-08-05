@@ -14,9 +14,9 @@ exports.getAllPhones = async (req, res) => {
     }
 
     if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = Number(minPrice);
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
+      filter["price.current"] = {};
+      if (minPrice) filter["price.current"].$gte = Number(minPrice);
+      if (maxPrice) filter["price.current"].$lte = Number(maxPrice);
     }
     // -------
 
@@ -40,6 +40,32 @@ exports.getAllPhones = async (req, res) => {
       totalPages: Math.ceil(totalCount / limitSize),
       limit: limitSize,
       total: totalCount,
+      data: phones,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};
+
+exports.additionalInfo = async (req, res) => {
+  try {
+    const phones = await Phone.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
+          totalPrice: { $sum: "$price" },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      status: "success",
       data: phones,
     });
   } catch (error) {
@@ -82,6 +108,12 @@ exports.postNewPhone = async (req, res) => {
 
 exports.patchSinglePhone = async (req, res) => {
   try {
+    if (req.body.brand) {
+      req.body.brand = req.body.brand
+        .toLowerCase()
+        .replace(/^./, (char) => char.toUpperCase());
+    }
+
     const phoneToUpdate = await Phone.findByIdAndUpdate(
       req.params.id,
       req.body,
