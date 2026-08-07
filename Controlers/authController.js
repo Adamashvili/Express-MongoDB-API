@@ -1,3 +1,4 @@
+const { promisify } = require("util");
 const User = require("./../Models/userModel");
 const jwt = require("jsonwebtoken");
 
@@ -53,3 +54,46 @@ exports.login = async (req, res, next) => {
   });
 
 };
+
+
+
+exports.protectRoute = async (req, res, next) => {
+  try {
+     //1. Check Token
+  const tokenToTest = req.headers.authorization
+  let token;
+
+  if(tokenToTest && tokenToTest.startsWith("bearer")) {
+    token = tokenToTest.split(" ")[1]
+  }
+
+  console.log(token);
+
+  if(!token) {
+    return res.status(401).json({
+      status: "failed",
+      message: "You Aren`t Signed in. Please Sign In To Your Account."
+    })
+  }
+  
+
+  //2. Validate Token
+
+
+   const decodedToken = await promisify(jwt.verify)(token, process.env.SECRET_STR);
+
+
+  //3.Password changed or not
+
+
+
+  //4. Allow user
+  next()
+  } catch (error) {
+    res.status(401).json({
+      status: "failed",
+      message: error.message
+    })
+  }
+ 
+}
