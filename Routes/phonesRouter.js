@@ -6,12 +6,17 @@ const router = express.Router();
 router
   .route("/")
   .get(phonesController.getAllPhones)
-  .post(authController.protectRoute, phonesController.postNewPhone);
+  .post(authController.protectRoute, authController.onlyForAdmin('admin'), phonesController.postNewPhone);
+
+router
+  .route("/infoofprices")  
+  .get(phonesController.additionalInfo);
+
 
 router
   .route("/:id")
   .get(phonesController.getSinglePhone)
-  .patch(authController.protectRoute, phonesController.patchSinglePhone)
-  .delete(authController.protectRoute, phonesController.deletePhone);
+  .patch(authController.protectRoute, authController.onlyForAdmin('admin'), phonesController.patchSinglePhone)
+  .delete(authController.protectRoute, authController.onlyForAdmin('admin'), phonesController.deletePhone);
 
 module.exports = router;

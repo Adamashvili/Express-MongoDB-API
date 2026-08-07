@@ -56,10 +56,10 @@ exports.additionalInfo = async (req, res) => {
       {
         $group: {
           _id: null,
-          avgPrice: { $avg: "$price" },
-          minPrice: { $min: "$price" },
-          maxPrice: { $max: "$price" },
-          totalPrice: { $sum: "$price" },
+          avgPrice: { $avg: "$price.current" },
+          minPrice: { $min: "$price.current" },
+          maxPrice: { $max: "$price.current" },
+          totalPrice: { $sum: "$price.current" },
         },
       },
     ]);

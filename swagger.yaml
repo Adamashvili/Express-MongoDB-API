@@ -48,7 +48,7 @@ paths:
         "400":
           description: Failed
     post:
-      summary: Create new phone
+      summary: Create new phone (for Admin User)
       tags: [Phones]
       requestBody:
         required: true
@@ -124,7 +124,7 @@ paths:
         "404":
           description: Not found
     patch:
-      summary: Update phone
+      summary: Update phone (for Admin User)
       tags: [Phones]
       parameters:
         - in: path
@@ -162,7 +162,7 @@ paths:
         "404":
           description: Not found
     delete:
-      summary: Delete phone
+      summary: Delete phone (for Admin User)
       tags: [Phones]
       parameters:
         - in: path

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs")
+const crypto = require("crypto")
 
 
 const userSchema = mongoose.Schema({
@@ -56,6 +57,13 @@ const userSchema = mongoose.Schema({
       message: "Please Enter MALE or FEMALE",
     },
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user"
+  },
+  passwordResetToken: String,
+  passwordResetTokenExpires: String,
 });
 
 
@@ -77,7 +85,6 @@ userSchema.pre("validate",  function() {
 userSchema.methods.comparePasswords = async function(pass, passDB) {
   return await bcrypt.compare(pass, passDB)
 }
-
 
 
 const User = mongoose.model("User", userSchema)
