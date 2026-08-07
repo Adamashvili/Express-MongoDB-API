@@ -17,7 +17,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.static("./public"))
-app.use("/shopping-phones", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/v1/phones', phonesRouter)
 app.use("/api/v1/brands", brandsRouter)
 app.use("/api/v1/users", authRouter)

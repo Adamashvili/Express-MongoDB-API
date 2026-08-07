@@ -23,7 +23,7 @@ const userSchema = mongoose.Schema({
   email: {
     type: String,
     required: [true, "Please enter your Email"],
-    unique: [true, "This Email already in use"],
+    unique: [true, "This Email is already in use"],
     lowercase: [true, "Email must be lowercase characters"],
     validate: [validator.isEmail, "Please Enter a valid Email address"],
   },
@@ -32,6 +32,7 @@ const userSchema = mongoose.Schema({
     required: [true, "Please enter your Password"],
     minLength: [4, "Min characters of Password is 4"],
     maxLength: [25, "Max characters of Password is 25"],
+    select: false
   },
   confirmPassword: {
     type: String,
@@ -72,6 +73,11 @@ userSchema.pre("save", async function() {
 userSchema.pre("validate",  function() {
   this.gender =  this.gender.toUpperCase()
 })
+
+userSchema.methods.comparePasswords = async function(pass, passDB) {
+  return await bcrypt.compare(pass, passDB)
+}
+
 
 
 const User = mongoose.model("User", userSchema)

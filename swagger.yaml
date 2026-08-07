@@ -183,3 +183,57 @@ paths:
       responses:
         "200":
           description: Success
+
+  /api/v1/users/signup:
+    post:
+      summary: Create new User Account
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                age:
+                  type: number
+                email:
+                  type: string
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+                image:
+                  type: string
+                gender:
+                  type: string            
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
+
+  /api/v1/users/login:
+    post:
+      summary: Sign In to your Account
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string           
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
