@@ -210,7 +210,7 @@ paths:
                 image:
                   type: string
                 gender:
-                  type: string            
+                  type: string
       responses:
         "201":
           description: Created
@@ -231,9 +231,55 @@ paths:
                 email:
                   type: string
                 password:
-                  type: string           
+                  type: string
       responses:
         "201":
           description: Created
         "400":
           description: Failed
+
+  /api/v1/users/forgotPassword:
+    post:
+      summary: Send Password Update code to your Email
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
+
+  /api/v1/users/resetPassword/{passToken}:
+    patch:
+      summary: Update Your Password
+      tags: [Users]
+      parameters:
+        - in: path
+          name: passToken
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: Not found

@@ -1,8 +1,9 @@
 const { promisify } = require("util");
 const User = require("./../Models/userModel");
 const jwt = require("jsonwebtoken");
-const sendPasswordResetEmail  = require("./../Utils/email");
-const crypto = require("crypto")
+const sendPasswordResetEmail = require("./../Utils/email");
+const crypto = require("crypto");
+
 const signToken = (id) => {
   return jwt.sign({ id: id }, process.env.SECRET_STR, {
     expiresIn: process.env.TOKEN_EXPIRE,
@@ -113,35 +114,77 @@ exports.forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         status: "failed",
-        message: "No user found with this email"
+        message: "No user found with this email",
       });
     }
 
-   
     const resetToken = crypto.randomBytes(32).toString("hex");
     user.passwordResetToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-
-    
+    user.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
 
     await user.save({ validateBeforeSave: false });
     await sendPasswordResetEmail(user.email, resetToken);
 
     res.status(200).json({
       status: "success",
-      message: "Reset email sent successfully!"
+      message: "Reset email sent successfully!",
     });
   } catch (error) {
-    res.status(400).json({
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpires = undefined;
+    user.save({ validateBeforeSave: false });
+    return res.status(400).json({
       status: "failed",
-      message: error.message
+      message: error.message,
     });
   }
 };
 
+exports.resetPassword = async (req, res, next) => {
+  const token = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
 
-exports.resetPassword = (req, res, next) => {};
+  const user = await User.findOne({
+    passwordResetToken: token,
+    passwordResetTokenExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      status: "failed",
+      message: "Token is invalid or expired.",
+    });
+  }
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpires = undefined;
+
+  user.save();
+
+  //Log in Again
+
+  if(req.body.password === req.body.confirmPassword) {
+    const loginToken = signToken(user._id);
+    res.status(201).json({
+      status: "success",
+      accessToken: loginToken,
+      message: "Your Password has Changed."
+    });
+  }
+  else {
+    return  res.status(400).json({
+      status: "failed",
+      message: "Password and Confirm Password fields don`t Match!",
+    });
+  }
+
+
+};
