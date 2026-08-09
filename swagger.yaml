@@ -283,3 +283,26 @@ paths:
           description: Success
         "404":
           description: Not found
+
+  /api/v1/users/updatePassword:
+    patch:
+      summary: Update Your password
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed

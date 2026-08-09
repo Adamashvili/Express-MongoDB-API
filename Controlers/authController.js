@@ -32,22 +32,32 @@ exports.login = async (req, res, next) => {
   const password = req.body.password;
 
   if (!email || !password) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "failed",
       message: "Please Enter Email and Password",
     });
-    return next();
+    // return next();
   }
   const user = await User.findOne({ email }).select("+password");
-  const isMatchPass = await user.comparePasswords(password, user.password);
 
-  if (!user || !isMatchPass) {
-    res.status(400).json({
+  if (!user) {
+    return res.status(400).json({
       status: "failed",
       message: "Email or Password does not match!",
     });
-    return next();
+    // return next();
   }
+
+  const isMatchPass = await user.comparePasswords(password, user.password);
+
+  if (!isMatchPass) {
+    return res.status(400).json({
+      status: "failed",
+      message: "Email or Password does not match!",
+    });
+    // return next();
+  }
+
   const token = signToken(user._id);
 
   res.status(201).json({
@@ -171,20 +181,51 @@ exports.resetPassword = async (req, res, next) => {
 
   //Log in Again
 
-  if(req.body.password === req.body.confirmPassword) {
+  if (req.body.password === req.body.confirmPassword) {
     const loginToken = signToken(user._id);
     res.status(201).json({
       status: "success",
       accessToken: loginToken,
-      message: "Your Password has Changed."
+      message: "Your Password has Changed.",
     });
-  }
-  else {
-    return  res.status(400).json({
+  } else {
+    return res.status(400).json({
       status: "failed",
       message: "Password and Confirm Password fields don`t Match!",
     });
   }
+};
 
+exports.updatePassword = async (req, res, next) => {
+  const user = await User.findById(req.user._id).select("+password");
 
+  if (!(await user.comparePasswords(req.body.currentPassword, user.password))) {
+    return res.status(400).json({
+      status: "failed",
+      message: "Current Password is wrong, Try Again.",
+    });
+  }
+
+  if (req.body.password !== req.body.confirmPassword) {
+    return res.status(400).json({
+      status: "failed",
+      message: "new Password and Confirm Password Fields are not match!",
+    });
+  }
+  //---
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+
+  await user.save();
+
+  //---
+
+  const loginToken = signToken(user._id);
+  res.status(200).json({
+    status: "success",
+    accessToken: loginToken,
+    message: "Your Password has Changed.",
+    user: user,
+  });
 };
