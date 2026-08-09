@@ -184,6 +184,15 @@ paths:
         "200":
           description: Success
 
+
+  /api/v1/users/getAllUsers:
+    get:
+      summary: Get All Users (for Admin User)
+      tags: [Users]
+      responses:
+        "200":
+          description: Success          
+
   /api/v1/users/signup:
     post:
       summary: Create new User Account
@@ -301,6 +310,43 @@ paths:
                   type: string
                 confirmPassword:
                   type: string
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
+
+  /api/v1/users/updateUserAccount:
+    patch:
+      summary: Update Your Account
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                age:
+                  type: number
+                image:
+                  type: string
+                gender:
+                  type: string  
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
+
+  /api/v1/users/deleteUserAccount:
+    delete:
+      summary: Delete Your password
+      tags: [Users]
       responses:
         "201":
           description: Created

@@ -10,6 +10,24 @@ const signToken = (id) => {
   });
 };
 
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find()
+    res.status(200).json({
+      status: "success",
+      userList: users
+    })
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+  
+
+
+}
+
 exports.signUp = async (req, res, next) => {
   try {
     const newUser = await User.create(req.body);
@@ -228,4 +246,79 @@ exports.updatePassword = async (req, res, next) => {
     message: "Your Password has Changed.",
     user: user,
   });
+};
+
+//------USER UPDATE----------
+
+function requestedObj(reqObj, ...properties) {
+  const userObject = {};
+
+  const notAllowedFields = Object.keys(reqObj).filter(
+    (item) => !properties.includes(item),
+  );
+
+  if (notAllowedFields.length > 0) {
+    throw new Error(
+      `You are not allowed to update: ${notAllowedFields.join(", ")}`,
+    );
+  }
+
+  Object.keys(reqObj).forEach((item) => {
+    if (properties.includes(item)) {
+      userObject[item] = reqObj[item];
+    }
+  });
+  return userObject;
+}
+
+exports.updateUserAccount = async (req, res, next) => {
+  if (req.body.password || req.body.confirmPassword) {
+    return res.status(400).json({
+      status: "failed",
+      message: "You Can Not Change Your Password Here.",
+    });
+  }
+  try {
+    const filteredObject = requestedObj(
+      req.body,
+      "firstName",
+      "lastName",
+      "age",
+      "image",
+      "gender",
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      filteredObject,
+      { runValidators: true, returnDocument: "after" },
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Your Account has Changed.",
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};
+
+exports.deleteUserAccount = async (req, res, next) => {
+  try {
+    await User.findByIdAndDelete(req.user._id);
+
+    res.status(204).json({
+      status: "success",
+      user: null,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
 };
