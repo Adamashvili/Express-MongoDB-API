@@ -10,33 +10,48 @@ const signToken = (id) => {
   });
 };
 
+const sendSecuredToken = (user, res, status, message) => {
+  const token = signToken(user._id);
+
+  const options = {
+    maxAge: +process.env.TOKEN_EXPIRE,
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "production") {
+    options.secure = true;
+  }
+
+  res.cookie("jwt", token, options);
+
+  user.password = undefined;
+
+  res.status(status).json({
+    status: "success",
+    accessToken: token,
+    message: message,
+    user: user,
+  });
+};
+
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find()
+    const users = await User.find();
     res.status(200).json({
       status: "success",
-      userList: users
-    })
+      userList: users,
+    });
   } catch (error) {
     res.status(400).json({
       status: "failed",
       message: error.message,
     });
   }
-  
-
-
-}
+};
 
 exports.signUp = async (req, res, next) => {
   try {
     const newUser = await User.create(req.body);
-    const token = signToken(newUser._id);
-    res.status(201).json({
-      status: "success",
-      accessToken: token,
-      user: newUser,
-    });
+    sendSecuredToken(newUser, res, 201, "Account Has Succesfully Created");
   } catch (error) {
     res.status(400).json({
       status: "failed",
@@ -54,7 +69,6 @@ exports.login = async (req, res, next) => {
       status: "failed",
       message: "Please Enter Email and Password",
     });
-    // return next();
   }
   const user = await User.findOne({ email }).select("+password");
 
@@ -63,7 +77,6 @@ exports.login = async (req, res, next) => {
       status: "failed",
       message: "Email or Password does not match!",
     });
-    // return next();
   }
 
   const isMatchPass = await user.comparePasswords(password, user.password);
@@ -76,12 +89,7 @@ exports.login = async (req, res, next) => {
     // return next();
   }
 
-  const token = signToken(user._id);
-
-  res.status(201).json({
-    status: "success",
-    accessToken: token,
-  });
+  sendSecuredToken(user, res, 201, "You Have Succesfully Signed In.");
 };
 
 exports.protectRoute = async (req, res, next) => {
@@ -200,12 +208,7 @@ exports.resetPassword = async (req, res, next) => {
   //Log in Again
 
   if (req.body.password === req.body.confirmPassword) {
-    const loginToken = signToken(user._id);
-    res.status(201).json({
-      status: "success",
-      accessToken: loginToken,
-      message: "Your Password has Changed.",
-    });
+    sendSecuredToken(newUser, res, 201, "Your Password has Changed.");
   } else {
     return res.status(400).json({
       status: "failed",
@@ -239,13 +242,7 @@ exports.updatePassword = async (req, res, next) => {
 
   //---
 
-  const loginToken = signToken(user._id);
-  res.status(200).json({
-    status: "success",
-    accessToken: loginToken,
-    message: "Your Password has Changed.",
-    user: user,
-  });
+  sendSecuredToken(user, res, 200, "Your Password has Changed.");
 };
 
 //------USER UPDATE----------
