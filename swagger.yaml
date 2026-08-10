@@ -352,3 +352,67 @@ paths:
           description: Created
         "400":
           description: Failed
+
+  /api/v1/cart:
+    get:
+      summary: Get Your Cart
+      tags: [Cart]
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed
+    post:
+      summary: Add Product To Cart
+      tags: [Cart]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                quantity:
+                  type: string      
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed                      
+    patch:
+      summary: Update Product In Cart
+      tags: [Cart]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                quantity:
+                  type: string      
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Failed 
+
+  /api/v1/cart/{id}:
+    delete:
+      summary: Remove Product from Cart
+      tags: [Cart]
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: Not found                               

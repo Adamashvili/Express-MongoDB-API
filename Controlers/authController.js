@@ -50,7 +50,18 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.signUp = async (req, res, next) => {
   try {
-    const newUser = await User.create(req.body);
+
+    // const newUser = await User.create(req.body); for admin signup
+    const newUser = await User.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      age: req.body.age,
+      email: req.body.email,
+      password: req.body.password,
+      confirmPassword: req.body.confirmPassword,
+      image: req.body.image,
+      gender: req.body.gender,
+    });
     sendSecuredToken(newUser, res, 201, "Account Has Succesfully Created");
   } catch (error) {
     res.status(400).json({
